@@ -20,7 +20,7 @@ from utils.training import check_run_done, truncate_sentence
 
 
 @click.command()
-@click.option('--task', type=str, default="arg-q")
+@click.option('--task', type=str, default="arg-qua")
 @click.option('--model_name', type=str, default="microsoft/deberta-v3-base")
 @click.option('--fold', type=int, default=0)
 @click.option('--setup', type=str, default="ct")
@@ -30,23 +30,11 @@ from utils.training import check_run_done, truncate_sentence
 @click.option('--epochs', type=int, default=5)
 @click.option('--dropout_rate', type=float, default=0.1)
 @click.option('--learning_rate', type=float, default=0.00002)
-@click.option('--dump', type=bool, default=False)
-def main(task, model_name, fold, setup, pooling, seed, batch_size, epochs, dropout_rate, learning_rate, dump):
-
-    if batch_size == -1:
-        batch_size = 16
+def main(task, model_name, fold, setup, pooling, seed, batch_size, epochs, dropout_rate, learning_rate):
 
     load_dotenv()
 
     task_id = task + "-" + setup + "-fold-" + str(fold)
-
-    if "few-shot" in task:
-        base_task = task.split("@")[-1]
-    else:
-        base_task = task
-
-    if dump:
-        task = "dump-" + task
 
     mode = os.getenv('MODE')
     gpu = int(os.getenv('USE_CUDA'))
@@ -97,7 +85,7 @@ def main(task, model_name, fold, setup, pooling, seed, batch_size, epochs, dropo
             test_samples["text"] = test_samples["text"].apply(lambda sentence: truncate_sentence(sentence, 300, tokenizer))
 
         def tokenize_function(samples):
-            composed_samples = compose_samples(samples, task=base_task, sep_token=tokenizer.sep_token)
+            composed_samples = compose_samples(samples, task=task, sep_token=tokenizer.sep_token)
             return [
                 tokenizer.encode(composed_sample, truncation=True)
                 for composed_sample in composed_samples
@@ -115,17 +103,8 @@ def main(task, model_name, fold, setup, pooling, seed, batch_size, epochs, dropo
 
         wandb_logger = WandbLogger(project="new-" + task, id=run_id)
 
-
-
-
-        if "xnli" in task or "x-sentiment":
-            batch_size = int(batch_size/4)
-            accumulate_grad_batches = 4
-        else:
-            accumulate_grad_batches = 1
-
         trainer = Trainer(
-            max_epochs=epochs, gradient_clip_val=1.0, logger=wandb_logger, gpus=gpu, num_sanity_val_steps=0, accumulate_grad_batches=accumulate_grad_batches,
+            max_epochs=epochs, gradient_clip_val=1.0, logger=wandb_logger, gpus=gpu, num_sanity_val_steps=0,
             callbacks=[RichProgressBar(), ModelCheckpoint(monitor="eval/f1-macro",  mode="max", dirpath="./" + run_id + "-checkpoints")]
 
         )
@@ -159,7 +138,6 @@ def main(task, model_name, fold, setup, pooling, seed, batch_size, epochs, dropo
             "test_predictions": test_samples_table
         })
 
-        #os.system("mv " + trainer.state.best_model_checkpoint + "/* " + model_store + "/" + run_id)
 
         wandb.config["status"] = "done"
         wandb.config.update(
@@ -169,11 +147,6 @@ def main(task, model_name, fold, setup, pooling, seed, batch_size, epochs, dropo
             },
             allow_val_change=True
         )
-
-        if dump:
-            artifact = wandb.Artifact('model', type='model')
-            artifact.add_file(trainer.checkpoint_callback.best_model_path)
-            wandb.log_artifact(artifact)
 
         os.system("rm -rf ./" + run_id + "-checkpoints")
     else:

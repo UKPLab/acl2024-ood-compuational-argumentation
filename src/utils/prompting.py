@@ -22,40 +22,6 @@ from transformers import BartConfig, BartTokenizer, BartForConditionalGeneration
     GPTJForCausalLM, BloomConfig, BloomForCausalLM, BloomTokenizerFast
 
 X_TEMPLATES = {
-    "xnli":{
-        "en":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "fr":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "es":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "de":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "el":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "bg":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "ru":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "ar":'{"placeholder": "text_a"}، {"mask"} ؟ {"placeholder": "text_b"}',
-        "tr":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "vi":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "th":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "zh":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "hi":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "sw":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "ur":'{"placeholder": "text_a"}، {"mask"} ? {"placeholder": "text_b"}',
-    },
-    "xnli-single":{
-        "en":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "fr":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "es":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "de":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "el":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "bg":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "ru":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "ar":'{"placeholder": "text_a"}، {"mask"} ؟ {"placeholder": "text_b"}',
-        "tr":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "vi":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "th":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "zh":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "hi":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "sw":'{"placeholder": "text_b"}? {"mask"}, {"placeholder": "text_a"}',
-        "ur":'{"placeholder": "text_a"}، {"mask"} ? {"placeholder": "text_b"}',
-    },
     "x-stance":{
         "de":'Die Haltung von {"placeholder": "text_a"} ist {"mask"} zu {"placeholder": "text_b"}.',
         "fr":'L\'attitude de {"placeholder": "text_a"} est {"mask"} envers {"placeholder": "text_b"}.',
@@ -69,29 +35,14 @@ X_TEMPLATES = {
     }
 }
 TEMPLATES = {
-    "entailment": [
+    "entail": [
         '{"placeholder": "text_a"}? {"mask"}, {"placeholder": "text_b"}.'
     ],
-    "entailment-2": [
-        '{"placeholder": "text_a"}? {"mask"}, {"placeholder": "text_b"}.'
-    ],
-    "ukp-argmin": [
-        #'{"placeholder": "text_b"} is {"mask"}. {"special": "<sep>"} {"placeholder": "text_a"}',
-        #'{"placeholder": "text_b"} ? {"special": "<sep>"} {"mask"} , {"placeholder": "text_a"}',
+    "arg-cls": [
         'The stance that {"placeholder": "text_a"} is {"mask"} on {"placeholder": "text_b"}.',
         '{"placeholder": "text_a"} is {"mask"} for {"placeholder": "text_b"}.',
         '{"placeholder": "text_a"} {"placeholder": "text_b"} {"mask"}',
         'The attitude of {"placeholder": "text_a"} is {"mask"} regarding {"placeholder": "text_b"}.',
-        #'The stance of {"placeholder": "text_a"} is {"mask"} regarding {"placeholder": "text_b"}. Select from favor, against, or neutral.',
-        #'Input: {"placeholder": "text_a"} Topic: {"placeholder": "text_b"} Stance: {"mask"}',
-        #'Which attitude has {"placeholder": "text_a"} towards {"placeholder": "text_b"}? {"mask"}.'
-    ],
-    "wtwt": [
-        #'{"placeholder": "text_b"} is {"mask"}. {"special": "<sep>"} {"placeholder": "text_a"}',
-        #'{"placeholder": "text_b"} ? {"special": "<sep>"} {"mask"} , {"placeholder": "text_a"}',
-        'The stance that {"placeholder": "text_a"} is {"mask"} on {"placeholder": "text_b"}.',
-        '{"placeholder": "text_a"} is {"mask"} for {"placeholder": "text_b"}.',
-        '{"placeholder": "text_a"} {"placeholder": "text_b"} {"mask"}',
     ],
     "review": [
         'The sentiment of {"placeholder": "text_a"} is {"mask"}.',
@@ -105,201 +56,26 @@ TEMPLATES = {
         '{"placeholder": "text_a"} {"placeholder": "text_b"} {"mask"}',
         'The attitude of {"placeholder": "text_a"} is {"mask"} regarding {"placeholder": "text_b"}.',
     ],
-    "essay-stance": [
-        'The stance of {"placeholder": "text_a"} is {"mask"} on {"placeholder": "text_b"} regarding {"meta": "topic"}.',
-        'The stance that argument {"placeholder": "text_a"} is {"mask"} on argument {"placeholder": "text_b"} regarding {"meta": "topic"}.',
-        '{"placeholder": "text_a"} {"placeholder": "text_b"} {"meta": "topic"} {"mask"}',
-    ],
-    "essay-type": [
-        '{"placeholder": "text_a"} is {"mask"} regarding {"placeholder": "text_b"}.',
-        'Argument {"placeholder": "text_a"} is {"mask"} regarding topic {"placeholder": "text_b"}.',
-    ],
-    "evi-sen": [
+    "evi-cls": [
         '{"placeholder": "text_a"} is {"mask"} evidence regarding {"placeholder": "text_b"}.',
         'Evidence {"placeholder": "text_a"} is {"mask"} evidence regarding topic {"placeholder": "text_b"}.',
         '{"placeholder": "text_a"} {"placeholder": "text_b"} {"mask"}',
         'Is {"placeholder": "text_a"} an evidence regarding {"placeholder": "text_b"}? {"mask"}',
     ],
-    "ag-news": [
-        '{"mask"} News: {"placeholder": "text_b"} {"placeholder": "text_a"}',
-        '{"placeholder": "text_b"} {"placeholder": "text_a"} talks about {"mask"}',
-        '{"placeholder": "text_a"} {"placeholder": "text_b"} {"mask"}',
-    ],
-    "ukp-a": [
+    "arg-sim": [
         '{"placeholder": "text_a"} is {"mask"} to {"placeholder": "text_b"} regarding {"meta": "topic"}.',
         'Argument {"placeholder": "text_a"} is {"mask"} to argument {"placeholder": "text_b"} regarding topic {"meta": "topic"}.',
         '{"placeholder": "text_a"} {"placeholder": "text_b"} {"meta": "topic"} {"mask"}',
     ],
-    "arg-q": [
+    "arg-qua": [
         '{"placeholder": "text_a"} is {"mask"} than {"placeholder": "text_b"} regarding {"meta": "topic"}.',
         'Argument {"placeholder": "text_a"} is {"mask"} than argument {"placeholder": "text_b"} regarding topic {"meta": "topic"}.',
         '{"placeholder": "text_a"} {"placeholder": "text_b"} {"meta": "topic"} {"mask"}',
     ],
 }
 
-MULTI_TEMPLATE = {
-    "ukp-argmin": '{"placeholder": "text_b"} is {"mask"}. {"special": "<sep>"} {"placeholder": "text_a"}',
-    "wtwt": '{"placeholder": "text_b"} is {"mask"}. {"special": "<sep>"} {"placeholder": "text_a"}'
-}
-
-PTUNING_TEMPLATES =  {
-    "ukp-argmin": [
-        #'{"soft"}{"placeholder": "text_b"}{"soft"}{"soft"}{"placeholder": "text_a"}{"soft"}{"mask"}',
-        #'{"soft": "topic: "}{"placeholder": "text_b"}{"soft"}{"soft"}{"placeholder": "text_a"}{"soft"}{"mask"}',
-        '{"soft"}{"placeholder": "text_b"}{"soft"}{"soft"}{"placeholder": "text_a"}{"soft": "stance: "}{"mask"}',
-        '{"soft": "topic: "}{"placeholder": "text_b"}{"soft"}{"soft": "argument: "}{"placeholder": "text_a"}{"soft"}{"soft": "stance: "}{"mask"}'
-    ],
-    "stance": [
-        #'{"soft"}{"placeholder": "text_b"}{"soft"}{"soft"}{"placeholder": "text_a"}{"soft"}{"mask"}',
-        #'{"soft": "topic: "}{"placeholder": "text_b"}{"soft"}{"soft"}{"placeholder": "text_a"}{"soft"}{"mask"}',
-        '{"soft"}{"placeholder": "text_b"}{"soft"}{"soft"}{"placeholder": "text_a"}{"soft": "stance: "}{"mask"}',
-        '{"soft": "topic: "}{"placeholder": "text_b"}{"soft"}{"soft": "argument: "}{"placeholder": "text_a"}{"soft"}{"soft": "stance: "}{"mask"}'
-    ],
-    "wtwt": [
-        #'{"soft"}{"placeholder": "text_b"}{"soft"}{"soft"}{"placeholder": "text_a"}{"soft"}{"mask"}',
-        #'{"soft": "topic: "}{"placeholder": "text_b"}{"soft"}{"soft"}{"placeholder": "text_a"}{"soft"}{"mask"}',
-        '{"soft"}{"placeholder": "text_b"}{"soft"}{"soft"}{"placeholder": "text_a"}{"soft": "stance: "}{"mask"}',
-        '{"soft": "topic: "}{"placeholder": "text_b"}{"soft"}{"soft": "argument: "}{"placeholder": "text_a"}{"soft"}{"soft": "stance: "}{"mask"}'
-        #'{"soft"}{"soft": "topic: "}{"placeholder": "text_b"}{"soft"}{"soft"}{"placeholder": "text_a"}{"soft"}{"soft": "stance: "}{"mask"}'
-    ],
-    "ag-news":[
-        '{"mask"}{"soft": "news: "}{"soft"}{"placeholder": "text_a"}{"soft"}{"soft"}{"placeholder": "text_b"}'
-        '{"mask"}{"soft"}{"soft": "title: "}{"placeholder": "text_a"}{"soft"}{"soft": "text: "}{"placeholder": "text_b"}'
-    ],
-    "essay-stance": [
-        '{"soft"}{"placeholder": "text_a"}{"soft"}{"soft"}{"placeholder": "text_b"}{"soft"}{"soft"}{"meta": "topic"}{"soft": "stance: "}{"mask"}.',
-        '{"soft": "argument: " }{"placeholder": "text_a"}{"soft"}{"soft": "argument: "}{"placeholder": "text_b"}{"soft"}{"soft": "topic: "}{"meta": "topic"}{"soft": "stance: "}{"mask"}.',
-        #'{"soft": "argument: "}{"placeholder": "text_a"}{"soft"}{"soft": "stance: "}{"mask"}{"soft"}{"soft"}{"placeholder": "text_b"}{"soft": "topic: "}{"meta": "topic"}.',
-    ],
-    "essay-type": [
-        '{"soft"}{"placeholder": "text_a"}{"soft"}{"soft"}{"placeholder": "text_b"}{"soft": "component: "}{"mask"}.',
-        '{"soft": "argument: "}{"placeholder": "text_a"}{"soft"}{"soft"}{"placeholder: " "text_b"}{"soft": "component: "}{"mask"}.',
-        #'{"soft": "Argument: "}{"placeholder": "text_a"} {"soft"} {"soft": "is } {"mask"} {"soft"} {"soft": "topic: "} {"placeholder": "text_b"}.',
-    ],
-    "evi-sen": [
-        '{"soft"}{"placeholder": "text_a"}{"soft"}{"soft"}{"placeholder": "text_b"}{"soft"}{"mask"}.',
-        '{"soft"}{"placeholder": "text_a"}{"soft"}{"soft":"topic: "}{"placeholder": "text_b"}{"soft": "is"}{"mask"}.',
-        #'Evidence {"placeholder": "text_a"} is {"mask"} regarding topic {"placeholder": "text_b"}.',
-    ],
-    "ukp-a": [
-        '{"soft"}{"placeholder": "text_a"}{"soft"}{"soft"}{"placeholder": "text_b"}{"soft"}{"soft"}{"meta": "topic"}{"soft"}{"mask"}.',
-        '{"soft": "argument: "}{"placeholder": "text_a"}{"soft"}{"soft":"is"}{"mask"}{"soft"}{"soft": "argument: "}{"placeholder": "text_b"}{"soft"}{"soft": "topic: "}{"meta": "topic"}.',
-        #'Argument {"placeholder": "text_a"} is {"mask"} to argument {"placeholder": "text_b"} regarding topic {"meta": "topic"}.',
-    ],
-    "arg-q": [
-        '{"soft"}{"placeholder": "text_a"}{"soft"}{"soft"}{"placeholder": "text_b"}{"soft"}{"soft"}{"meta": "topic"}{"soft"}{"mask"}.',
-        '{"soft": "argument: "}{"placeholder": "text_a"}{"soft"}{"soft":"is"}{"mask"}{"soft"}{"soft": "argument: "}{"placeholder": "text_b"}{"soft"}{"soft": "topic: "}{"meta": "topic"}.',
-        #'Argument {"placeholder": "text_a"} is {"mask"} than argument {"placeholder": "text_b"} regarding topic {"meta": "topic"}.',
-    ],
-}
 
 X_STATIC_VERBALIZING = {
-    "xnli-single" : {
-        2 : [
-            "No",
-            "Non",
-            "No",
-            "Nein",
-            "Οχι",
-            "Не",
-            "Нет",
-            "لا",
-            "Evet",
-            "KHÔNG",
-            "เลขที่",
-            "不",
-            "नहीं",
-            "Hapana",
-            "نہیں"
-        ],
-        0 : [
-            "Yes",
-            "Oui",
-            "Sí",
-            "Ja",
-            "Ναί",
-            "да",
-            "Да",
-            "نعم",
-            "HAYIR",
-            "Đúng",
-            "ใช่",
-            "是的",
-            "हाँ",
-            "Ndiyo",
-            "جی ہاں"
-        ],
-        1 : [
-            "Maybe",
-            "Peut-être",
-            "Tal vez",
-            "Vielleicht"
-            "Μπορεί",
-            "Може би",
-            "Может быть",
-            "ربما",
-            "Belki",
-            "Có lẽ",
-            "อาจจะ",
-            "或许",
-            "शायद",
-            "Labda",
-            "شاید"
-        ],
-    },
-    "xnli" : {
-        2 : [
-            "No",
-            "Non",
-            "No",
-            "Nein",
-            "Οχι",
-            "Не",
-            "Нет",
-            "لا",
-            "Evet",
-            "KHÔNG",
-            "เลขที่",
-            "不",
-            "नहीं",
-            "Hapana",
-            "نہیں"
-        ],
-        0 : [
-            "Yes",
-            "Oui",
-            "Sí",
-            "Ja",
-            "Ναί",
-            "да",
-            "Да",
-            "نعم",
-            "HAYIR",
-            "Đúng",
-            "ใช่",
-            "是的",
-            "हाँ",
-            "Ndiyo",
-            "جی ہاں"
-        ],
-        1 : [
-            "Maybe",
-            "Peut-être",
-            "Tal vez",
-            "Vielleicht"
-            "Μπορεί",
-            "Може би",
-            "Может быть",
-            "ربما",
-            "Belki",
-            "Có lẽ",
-            "อาจจะ",
-            "或许",
-            "शायद",
-            "Labda",
-            "شاید"
-        ],
-    },
     "x-stance" : {
         0 : [
             "pro",
@@ -333,21 +109,12 @@ X_STATIC_VERBALIZING = {
     },
 }
 STATIC_VERBALIZING = {
-    "ukp-argmin" : {
+    "arg-cls" : {
         0 : ["neutral", "unrelated"], #Neutral
         1 : ["for", "in favor", "support"], #For
         2 : ["against", "versus"], #Against
     },
-    "essay-type" : {
-        0 : ["premise"],
-        1 : ["claim"],
-        2 : ["majorclaim"],
-    },
-    "essay-stance" : {
-        0 : ["attack"],
-        1 : ["support"],
-    },
-    "ukp-a" : {
+    "arg-sim" : {
         0 : ["similar"],
         1 : ["different"],
     },
@@ -355,15 +122,15 @@ STATIC_VERBALIZING = {
         0 : ["yes"],
         1 : ["no"],
     },
-    "entailment-2" : {
+    "entail" : {
         0 : ["yes"],
         1 : ["no"],
     },
-    "arg-q" : {
+    "arg-qua" : {
         0 : ["better"],
         1 : ["worse"],
     },
-    "evi-sen" : {
+    "evi-cls" : {
         0 : ["no"],
         1 : ["yes"],
     },
@@ -371,27 +138,11 @@ STATIC_VERBALIZING = {
         0 : ["negative"],
         1 : ["positive"],
     },
-    "temporal-review" : {
-        0 : ["negative"],
-        1 : ["positive"],
-    },
-    "wtwt" : {
-        0 : ["for", "in favor", "support"], #support
-        1 : ["against", "versus"], #refute
-        2 : ["neutral"], #unrelated
-        3 : ["comment"], #comment
-    },
     "stance": {
         0: ["pro", "favor", "for"],
         1: ["anti", "against"],
         2: ["other", "none", "observing"],
     },
-    "ag-news": {
-        0 : ["world"],
-        1 : ["sports"],
-        2 : ["business"],
-        3 : ["tech"],
-    }
 }
 
 

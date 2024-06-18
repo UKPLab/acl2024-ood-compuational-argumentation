@@ -22,25 +22,16 @@ from utils.training import check_run_done, get_metrics
 @click.option('--k', type=int, default=4)
 @click.option('--seed', type=int, default=0)
 @click.option('--bm25_retrieval', type=bool, default=False)
-@click.option('--template_indices', type=str, default="0")
-def main(task, model_name, fold, setup, k, seed, bm25_retrieval, template_indices):
-    if "@" in task:
-        base_task = task.split("@")[1]
-    else:
-        base_task = task
+def main(task, model_name, fold, setup, k, seed, bm25_retrieval):
 
     load_dotenv()
 
     task_id = task + "-" + setup + "-fold-" + str(fold)
 
-
     mode = os.getenv('MODE')
-    use_cuda = bool(int(os.getenv('USE_CUDA')))
-
     training = "INSTRUCTION"
 
     openai.api_key = os.getenv('OPENAI_KEY')
-
 
     update_plms()
 
@@ -54,7 +45,7 @@ def main(task, model_name, fold, setup, k, seed, bm25_retrieval, template_indice
         "seed": seed,
     }
 
-    template_indices = [int(i) for i in template_indices.split(",")]
+    template_indices = [0]
 
     is_run_done = check_run_done(task, hyperparameter)
 
@@ -90,8 +81,8 @@ def main(task, model_name, fold, setup, k, seed, bm25_retrieval, template_indice
                 for label, token in LABEL_MAPPING[task].items()
             ])
 
-            dev_instructions = compose_instructions(train_samples, dev_samples, base_task, seed, k, i)
-            test_instructions = compose_instructions(train_samples, test_samples, base_task, seed, k, i, scores=test_scores)
+            dev_instructions = compose_instructions(train_samples, dev_samples, task, seed, k, i)
+            test_instructions = compose_instructions(train_samples, test_samples, task, seed, k, i, scores=test_scores)
 
 
             dev_prediction, dev_prediction_token = get_gpt_prompt_preds(dev_instructions, token_label_mapping, model_name=model_name)

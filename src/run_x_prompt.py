@@ -25,17 +25,8 @@ from utils.training import check_run_done, get_metrics, truncate_sentence
 @click.option('--setup', type=str, default="cl")
 @click.option('--seed', type=int, default=0)
 @click.option('--batch_size', type=int, default=-1)
-@click.option('--template_indices', type=str, default="0")
 @click.option('--verbalizing_mode', type=str, default="automatic")
-def main(task, model_name, fold, setup, seed, batch_size, template_indices, verbalizing_mode):
-
-    if "@" in task:
-        base_task = task.split("@")[1]
-    else:
-        base_task = task
-
-    if batch_size == -1:
-        batch_size = 8
+def main(task, model_name, fold, setup, seed, batch_size, verbalizing_mode):
 
     load_dotenv()
 
@@ -63,7 +54,7 @@ def main(task, model_name, fold, setup, seed, batch_size, template_indices, verb
         "verbalizing_mode": verbalizing_mode,
     }
 
-    template_indices = [int(i) for i in template_indices.split(",")]
+    template_indices = [0]
 
     is_run_done = check_run_done(task, hyperparameter)
 
@@ -88,10 +79,7 @@ def main(task, model_name, fold, setup, seed, batch_size, template_indices, verb
 
         for i in template_indices:
 
-            template_texts = X_TEMPLATES[base_task]
-
-           #placeholder = {'<text_a>':'text_a','<text_b>':'text_b'},
-
+            template_texts = X_TEMPLATES[task]
 
             prompt_template = XManualTemplate(
                 text = template_texts,
@@ -101,7 +89,7 @@ def main(task, model_name, fold, setup, seed, batch_size, template_indices, verb
             if verbalizing_mode == "static":
                 prompt_verbalizing = ManualVerbalizer(
                     classes = list(range(num_classes)),
-                    label_words = X_STATIC_VERBALIZING[base_task],
+                    label_words = X_STATIC_VERBALIZING[task],
                     tokenizer = tokenizer,
                 )
             elif verbalizing_mode == "automatic":

@@ -35,23 +35,13 @@ from utils.training import check_run_done, truncate_sentence
 @click.option('--batch_size', type=int, default=-1)
 @click.option('--learning_rate', type=float, default=0.00002)
 @click.option('--epochs', type=int, default=5)
-@click.option('--template_indices', type=str, default="0")
 @click.option('--verbalizing_mode', type=str, default="automatic")
-def main(task, model_name, fold, setup, seed, batch_size, learning_rate, epochs, template_indices, verbalizing_mode):
+def main(task, model_name, fold, setup, seed, batch_size, learning_rate, epochs, verbalizing_mode):
 
-
-    if batch_size == -1:
-        batch_size = 16
 
     load_dotenv()
 
     task_id = task + "-" + setup + "-fold-" + str(fold)
-
-    if "@" in task:
-        base_task = task.split("@")[1]
-    else:
-        base_task = task
-
 
     mode = os.getenv('MODE')
     use_cuda = bool(int(os.getenv('USE_CUDA')))
@@ -74,11 +64,10 @@ def main(task, model_name, fold, setup, seed, batch_size, learning_rate, epochs,
         "seed": seed,
         "learning_rate": learning_rate,
         "batch_size": batch_size,
-        "template_indices": template_indices,
         "verbalizing_mode": verbalizing_mode,
     }
 
-    template_indices = [int(i) for i in template_indices.split(",")]
+    template_indices = [0]
 
     is_run_done = check_run_done(task, hyperparameter)
 
@@ -116,9 +105,7 @@ def main(task, model_name, fold, setup, seed, batch_size, learning_rate, epochs,
 
             seed_all(hyperparameter["seed"])
 
-
-
-            template_texts = X_TEMPLATES[base_task]
+            template_texts = X_TEMPLATES[task]
 
             prompt_template = XManualTemplate(
                 text = template_texts,
@@ -128,7 +115,7 @@ def main(task, model_name, fold, setup, seed, batch_size, learning_rate, epochs,
             if verbalizing_mode == "static":
                 prompt_verbalizing = ManualVerbalizer(
                     classes = list(range(num_classes)),
-                    label_words = X_STATIC_VERBALIZING[base_task],
+                    label_words = X_STATIC_VERBALIZING[task],
                     tokenizer = tokenizer,
                 )
             elif verbalizing_mode == "automatic":
@@ -246,8 +233,7 @@ def main(task, model_name, fold, setup, seed, batch_size, learning_rate, epochs,
                     "z_template-tokens": tokens_table
                 })
 
-            #os.system("mv " + trainer.state.best_model_checkpoint + "/* " + model_store + "/" + run_id)
-
+    
             wandb.config["template"] = str(i)
             wandb.config.update(
                 {

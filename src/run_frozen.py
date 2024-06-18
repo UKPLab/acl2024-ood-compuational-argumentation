@@ -17,7 +17,7 @@ from utils.training import check_run_done
 
 
 @click.command()
-@click.option('--task', type=str, default="ukp-argmin")
+@click.option('--task', type=str, default="arg-cls")
 @click.option('--model_name', type=str, default="bert-base-uncased")
 @click.option('--fold', type=int, default=0)
 @click.option('--setup', type=str, default="it")
@@ -27,26 +27,14 @@ from utils.training import check_run_done
 @click.option('--learning_rate', type=float, default=0.0005)
 def main(task, model_name, fold, setup, pooling, seed, batch_size, learning_rate):
 
-    if batch_size == -1:
-        batch_size = 16
-
     load_dotenv()
 
     task_id = task + "-" + setup + "-fold-" + str(fold)
-
-    if "few-shot" in task:
-        base_task = task.split("@")[-1]
-    else:
-        base_task = task
-
-
-
 
     mode = os.getenv('MODE')
     gpu = int(os.getenv('USE_CUDA'))
 
     training = "FROZEN"
-
 
     epochs = 20
 
@@ -69,9 +57,9 @@ def main(task, model_name, fold, setup, pooling, seed, batch_size, learning_rate
 
         text_encoding = Encoding(model_name=model_name, pooling_mode=pooling)
 
-        train_dataset = SimpleDataset("../tasks/" + task_id + "/train.jsonl", task=base_task, text_encoding=text_encoding)
-        dev_dataset = SimpleDataset("../tasks/" + task_id + "/dev.jsonl", task=base_task, text_encoding=text_encoding)
-        test_dataset = SimpleDataset("../tasks/" + task_id + "/test.jsonl", task=base_task, text_encoding=text_encoding)
+        train_dataset = SimpleDataset("../tasks/" + task_id + "/train.jsonl", task=task, text_encoding=text_encoding)
+        dev_dataset = SimpleDataset("../tasks/" + task_id + "/dev.jsonl", task=task, text_encoding=text_encoding)
+        test_dataset = SimpleDataset("../tasks/" + task_id + "/test.jsonl", task=task, text_encoding=text_encoding)
 
         train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
         dev_dataloader = DataLoader(dev_dataset, batch_size=batch_size)

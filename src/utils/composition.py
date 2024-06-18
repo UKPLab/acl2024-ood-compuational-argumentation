@@ -114,30 +114,21 @@ def compose_review_samples(samples, sep_token):
 
 
 COMPOSITION = {
-    "ukp-argmin": compose_text_topic_samples,
-    "entailment": compose_entailment_samples,
-    "entailment-2": compose_entailment_samples,
-    "wtwt": compose_text_topic_samples,
-    "ag-news": compose_ag_news_samples,
-    "arg-q": compose_pair_topic_samples,
-    "ukp-a": compose_pair_topic_samples,
-    "essay-type": compose_text_topic_samples,
-    "essay-stance": compose_pair_topic_samples,
-    "evi-sen": compose_text_topic_samples,
+    "arg-cls": compose_text_topic_samples,
+    "entail": compose_entailment_samples,
+    "arg-qua": compose_pair_topic_samples,
+    "arg-sim": compose_pair_topic_samples,
+    "evi-cls": compose_text_topic_samples,
     "stance": compose_text_target_samples,
-    "xcopa": compose_premise_choice_samples,
-    "xnli": compose_premise_hypothesis_samples,
     "x-stance": compose_text_topic_samples,
     "x-sentiment": compose_review_samples,
     "review": compose_review_samples,
-    "temporal-review": compose_review_samples,
-    "xnli-single": compose_premise_hypothesis_samples,
 }
 
 
 
 LABEL_MAPPING = {
-    "ukp-argmin": {
+    "arg-cls": {
         0: "neutral",
         1: "favor",
         2: "against",
@@ -147,7 +138,7 @@ LABEL_MAPPING = {
         1: "against",
         2: "neutral",
     },
-    "entailment-2": {
+    "entail": {
         0: "yes",
         1: "no",
     },
@@ -155,23 +146,17 @@ LABEL_MAPPING = {
         0: "negative",
         1: "positive",
     },
-    "arg-q": {
+    "arg-qua": {
         0: "first",
         1: "second",
     },
-    "ukp-a": {
+    "arg-sim": {
         0: "no",
         1: "yes",
     },
-    "evi-sen": {
+    "evi-cls": {
         0: "no",
         1: "yes",
-    },
-    "ag-news": {
-        0: "world",
-        1: "sports",
-        2: "business",
-        3: "tech",
     },
 }
 
@@ -207,59 +192,6 @@ X_LABEL_MAPPING = {
             0: "ネガティブ",
             1: "ポジティブ"
         },
-    },
-    "xnli": {
-        2 : {
-            "en": "No",
-            "fr": "Non",
-            "es": "No",
-            "de": "Nein",
-            "el": "Οχι",
-            "bg": "Не",
-            "ru": "Нет",
-            "ar": "لا",
-            "tr": "Evet",
-            "vi": "KHÔNG",
-            "th": "เลขที่",
-            "zh": "不",
-            "hi": "नहीं",
-            "sw": "Hapana",
-            "ur": "نہیں"
-        },
-        0 : {
-            "en": "Yes",
-            "fr": "Oui",
-            "es": "Sí",
-            "de": "Ja",
-            "el": "Ναί",
-            "bg": "да",
-            "ru": "Да",
-            "ar": "نعم",
-            "tr": "HAYIR",
-            "vi": "Đúng",
-            "th": "ใช่",
-            "zh": "是的",
-            "hi": "हाँ",
-            "sw": "Ndiyo",
-            "ur": "جی ہاں"
-        },
-        1 : {
-            "en": "Maybe",
-            "fr": "Peut-être",
-            "es": "Tal vez",
-            "de": "Vielleicht",
-            "el": "Μπορεί",
-            "bg": "Може би",
-            "ru": "Может быть",
-            "ar": "ربما",
-            "tr": "Belki",
-            "vi": "Có lẽ",
-            "th": "อาจจะ",
-            "zh": "或许",
-            "hi": "शायद",
-            "sw": "Labda",
-            "ur": "شاید"
-        },
     }
 }
 def compose_stance_example_instruction_1(instruction_example_samples, example_label=True):
@@ -284,47 +216,6 @@ def ukp_argmin_instruction(example_label):
         instruction += " Options are neutral, favor, or against."
 
     instruction += "\n"
-
-    return instruction
-
-def flan_ukp_argmin_instruction(example_label):
-    instruction = "What is the attitude of the following argument regarding the given topic?"
-
-    if example_label:
-        instruction += "\n\nOptions:\n-neutral\n-favor\n-against"
-
-    instruction += "\n"
-
-    return instruction
-
-
-def vicuna_ukp_argmin_instruction(example_label):
-    instruction = "USER: What is the attitude of the following argument regarding the given topic?"
-
-    if example_label:
-        instruction += "(Choose from neutral, favor, or against)"
-
-    instruction += "\n\n"
-
-    return instruction
-
-def xnli_instruction(example_label):
-    instruction = "Can the following hypothesis be inferred from the given premise?"
-
-    if example_label:
-        instruction += " Options are yes, no or maybe according the specific language."
-
-    instruction += "\n\n"
-
-    return instruction
-
-def flan_xnli_instruction(example_label):
-    instruction = "Can the following hypothesis be inferred from the given premise?"
-
-    if example_label:
-        instruction += "\n\nOptions:\n-yes\n-no\n-maybe"
-
-    instruction += "\n\n"
 
     return instruction
 
@@ -426,26 +317,6 @@ def entailment_instruction(example_label):
 
     return instruction
 
-def flan_stance_instruction(example_label):
-    instruction = "What is the attitude of the following text regarding the given target?"
-
-    if example_label:
-        instruction += "\n\nOptions:\n-neutral\n-favor\n-against"
-
-    instruction += "\n\n"
-
-    return instruction
-
-def vicuna_stance_instruction(example_label):
-    instruction = "USER: What is the attitude of the following text regarding the given target?"
-
-    if example_label:
-        instruction += "(Choose from neutral, favor, or against)"
-
-    instruction += "\n\n"
-
-    return instruction
-
 def evi_sen_instruction(example_label):
     instruction = "Corresponds the following evidence to the given topic?"
 
@@ -457,45 +328,6 @@ def evi_sen_instruction(example_label):
     return instruction
 
 
-def flan_evi_sen_instruction(example_label):
-    instruction = "Is the following text an evidence regarding the given topic?"
-
-    if example_label:
-        instruction += "\nOptions:\n-yes\n-no"
-
-    instruction += "\n"
-
-    return instruction
-
-def vicuna_evi_sen_instruction(example_label):
-    instruction = "Is the following text an evidence regarding the given topic?"
-
-    if example_label:
-        instruction += "(Choose from yes or no)"
-
-    instruction += "\n"
-
-    return instruction
-def ag_news_instruction(example_label):
-    instruction = "What is the topic of the following text?"
-
-    if example_label:
-        instruction += " Options are world, sports, business, or tech."
-
-    instruction += "\n\n"
-
-    return instruction
-
-def flan_ag_news_instruction(example_label):
-    instruction = "What is the topic of the following text?"
-
-    if example_label:
-        instruction += "\n\nOptions:\n-world\n-sports\n-business\n-tech"
-
-    instruction += "\n\n"
-
-    return instruction
-
 def ukp_a_instruction(example_label):
     instruction = "Are the following arguments similar regarding the given topic?"
 
@@ -506,25 +338,6 @@ def ukp_a_instruction(example_label):
 
     return instruction
 
-def flan_ukp_a_instruction(example_label):
-    instruction = "Are the following arguments similar regarding the given topic?"
-
-    if example_label:
-        instruction += "\n\nOptions:\n-yes\n-no"
-
-    instruction += "\n\n"
-
-    return instruction
-
-def flan_ukp_a_instruction(example_label):
-    instruction = "Are the following arguments similar regarding the given topic?"
-
-    if example_label:
-        instruction += "\n\nOptions:\n-yes\n-no"
-
-    instruction += "\n\n"
-
-    return instruction
 
 
 def arg_q_instruction(example_label):
@@ -537,16 +350,6 @@ def arg_q_instruction(example_label):
 
     return instruction
 
-
-def flan_arg_q_instruction(example_label):
-    instruction = "Is the following argument 1 better than argument given the corresponding topic?"
-
-    if example_label:
-        instruction += "\n\nOptions:\n-yes\n-no"
-
-    instruction += "\n\n"
-
-    return instruction
 
 def compose_ukp_argmin_topic_demonstration_1(task, demonstration_example_samples):
     demonstration = ""
@@ -706,36 +509,6 @@ def compose_arg_topic_demonstration_1(task, demonstration_example_samples):
     return demonstration
 
 
-def flan_compose_arg_topic_demonstration_1(task, demonstration_example_samples):
-
-    demonstration = ""
-
-    for i, row in demonstration_example_samples.iterrows():
-
-        label = LABEL_MAPPING[task][row["label"]]
-
-        demonstration += "Question: What is the attitude of the following argument regarding the given topic?\nOptions are favor, neutral, or against.\n"
-        demonstration += "Argument: " + row["text"] + "\n"
-        demonstration += "Topic: " + row["topic"] + "\n\n"
-        demonstration += "Answer: " + label + "\n\n\n"
-
-    return demonstration
-
-def flan_compose_stance_topic_demonstration_1(task, demonstration_example_samples):
-
-    demonstration = ""
-
-    for i, row in demonstration_example_samples.iterrows():
-
-        label = LABEL_MAPPING[task][row["label"]]
-
-        demonstration += "Question: What is the attitude of the following argument regarding the given target?\nOptions are favor, neutral, or against.\n"
-        demonstration += "Argument: " + row["text"] + "\n"
-        demonstration += "Target: " + row["target"] + "\n\n"
-        demonstration += "Answer: " + label + "\n\n\n"
-
-    return demonstration
-
 def compose_evi_topic_demonstration_1(task, demonstration_example_samples):
 
     demonstration = ""
@@ -751,20 +524,6 @@ def compose_evi_topic_demonstration_1(task, demonstration_example_samples):
 
     return demonstration
 
-def flan_compose_evi_topic_demonstration_1(task, demonstration_example_samples):
-
-    demonstration = ""
-
-    for i, row in demonstration_example_samples.iterrows():
-
-        label = LABEL_MAPPING[task][row["label"]]
-
-        demonstration += "Question: Is the following text an evidence regarding the given topic?\nOptions are yes or no.\n"
-        demonstration += "Text: " + row["text"] + "\n"
-        demonstration += "Topic: " + row["topic"] + "\n\n"
-        demonstration += "Answer: " + label + "\n\n\n"
-
-    return demonstration
 
 def compose_pairwise_input_topic_demonstration_1(task, demonstration_example_samples):
 
@@ -816,40 +575,6 @@ def compose_arg_q_topic_demonstration_1(task, demonstration_example_samples):
 
     return demonstration
 
-def flan_compose_ukp_a_topic_demonstration_1(task, demonstration_example_samples):
-
-    demonstration = ""
-
-    for i, row in demonstration_example_samples.iterrows():
-
-        label = LABEL_MAPPING[task][row["label"]]
-
-        demonstration += "Question: Are the following arguments similar regarding the given topic?\nOptions are yes or no.\n"
-        demonstration += "Argument 1: " + row["text_1"] + "\n"
-        demonstration += "Argument 2: " + row["text_2"] + "\n"
-        demonstration += "Topic: " + row["topic"] + "\n\n"
-        demonstration += "Answer: " + label + "\n\n\n"
-
-
-    return demonstration
-
-def flan_compose_arg_q_topic_demonstration_1(task, demonstration_example_samples):
-
-    demonstration = ""
-
-    for i, row in demonstration_example_samples.iterrows():
-
-        label = LABEL_MAPPING[task][row["label"]]
-
-        demonstration += "Question: Which of the following two arguments is the one with the higher quality?\nOptions are first or second.\n"
-        demonstration += "Argument 1: " + row["text_1"] + "\n"
-        demonstration += "Argument 2: " + row["text_2"] + "\n"
-        demonstration += "Topic: " + row["topic"] + "\n\n"
-        demonstration += "Answer: " + label + "\n\n\n"
-
-
-    return demonstration
-
 
 def compose_input_demonstration_1(task, demonstration_example_samples):
 
@@ -872,19 +597,6 @@ def compose_ag_news_demonstration_1(task, demonstration_example_samples):
 
         demonstration += "Text: " + row["text"] + "\n"
         demonstration += "Topic: " +label + "\n\n"
-
-    return demonstration
-
-def flan_compose_ag_news_demonstration_1(task, demonstration_example_samples):
-
-    demonstration = ""
-    for i, row in demonstration_example_samples.iterrows():
-
-        label = LABEL_MAPPING[task][row["label"]]
-
-        demonstration += "Question: What is the topic of the following text?\nOptions are world, sports, business, or tech.\n"
-        demonstration += "Text: " + row["text"] + "\n\n"
-        demonstration += "Answer: " + label + "\n\n\n"
 
     return demonstration
 
@@ -938,15 +650,6 @@ def compose_entailment_demonstration_query_1(row):
 
     return instruction
 
-
-def flan_compose_stance_demonstration_query_1(row):
-    instruction = "Question: What is the attitude of the following argument regarding the given target?\nOptions are favor, neutral, or against.\n"
-    instruction += "Argument: " + row["text"] + "\n"
-    instruction += "Target: " + row["target"] + "\n\n"
-    instruction += "Answer:"
-
-    return instruction
-
 def compose_xnli_demonstration_query_1(row):
     instruction = "Hypothesis: " + row["hypothesis"] + "\n"
     instruction += "Premise: " + row["premise"] + "\n"
@@ -958,22 +661,6 @@ def compose_arg_topic_demonstration_query_1(row):
     instruction = "Argument: " + row["text"] + "\n"
     instruction += "Topic: " + row["topic"] + "\n"
     instruction += "Label:"
-
-    return instruction
-
-def flan_compose_arg_topic_demonstration_query_1(row):
-    instruction = "Question: What is the attitude of the following argument regarding the given topic?\nOptions are favor, neutral, or against.\n"
-    instruction += "Argument: " + row["text"] + "\n"
-    instruction += "Topic: " + row["topic"] + "\n\n"
-    instruction += "Answer:"
-
-    return instruction
-
-def flan_compose_evi_topic_demonstration_query_1(row):
-    instruction = "Question: Is the following text an evidence regarding the given topic?\nOptions are yes or no.\n"
-    instruction += "Text: " + row["text"] + "\n"
-    instruction += "Topic: " + row["topic"] + "\n\n"
-    instruction += "Answer:"
 
     return instruction
 
@@ -996,60 +683,6 @@ def compose_ag_news_demonstration_query_1(row):
 
     return instruction
 
-def flan_compose_ag_news_demonstration_query_1(row):
-    instruction = "Question: What is the topic of the following text?\nOptions are world, sports, business, or tech.\n"
-    instruction += "Text: " + row["text"] + "\n\n"
-    instruction += "Answer:"
-
-    return instruction
-
-def compose_pairwise_input_topic_demonstration_query_1(row):
-    instruction = "Input 1: " + row["text_1"] + "\n"
-    instruction += "Input 2: " + row["text_2"] + "\n"
-    instruction += "Topic: " + row["topic"] + "\n"
-    instruction += "Label:"
-
-    return instruction
-
-def compose_ukp_a_demonstration_query_1(row):
-    instruction = "Argument 1: " + row["text_1"] + "\n"
-    instruction += "Argument 2: " + row["text_2"] + "\n"
-    instruction += "Topic: " + row["topic"] + "\n"
-    instruction += "Label:"
-
-    return instruction
-
-def flan_compose_ukp_a_demonstration_query_1(row):
-    instruction = "Question: Are the following arguments similar regarding the given topic?\nOptions are yes or no.\n"
-    instruction += "Argument 1: " + row["text_1"] + "\n"
-    instruction += "Argument 2: " + row["text_2"] + "\n"
-    instruction += "Topic: " + row["topic"] + "\n\n"
-    instruction += "Answer:"
-
-    return instruction
-
-
-def flan_compose_arg_q_demonstration_query_1(row):
-    instruction = "Question: Which of the following two arguments is the one with the higher quality?\nOptions are first or second.\n"
-    instruction += "Argument 1: " + row["text_1"] + "\n"
-    instruction += "Argument 2: " + row["text_2"] + "\n"
-    instruction += "Topic: " + row["topic"] + "\n\n"
-    instruction += "Answer:"
-
-    return instruction
-
-
-def get_scores_for_row(bm25, row):
-    if "text" in row:
-        tokenized_query = word_tokenize(row["text"])
-    elif "premise" in row:
-        tokenized_query = word_tokenize(row["hypothesis"] + " " + row["premise"])
-    else:
-        tokenized_query = word_tokenize(row["text_1"] + " " + row["text_2"])
-
-    scores = bm25.get_scores(tokenized_query).argsort()[-100:][::-1]
-
-    return scores
 
 def compose_instructions(example_samples, samples, task, seed, k, template_index, example_label=True, model_name="", scores=None):
     instruction_inputs = []
@@ -1121,6 +754,15 @@ def compose_instructions(example_samples, samples, task, seed, k, template_index
     return instruction_inputs
 
 
+
+def compose_ukp_a_demonstration_query_1(row):
+    instruction = "Argument 1: " + row["text_1"] + "\n"
+    instruction += "Argument 2: " + row["text_2"] + "\n"
+    instruction += "Topic: " + row["topic"] + "\n"
+    instruction += "Label:"
+
+    return instruction
+
 def compose_instructions_x(example_samples, samples, task, seed, k, template_index, example_label=True, model_name="", scores=None):
     instruction_inputs = []
 
@@ -1190,17 +832,27 @@ def compose_instructions_x(example_samples, samples, task, seed, k, template_ind
 
     return instruction_inputs
 
+def get_scores_for_row(bm25, row):
+    if "text" in row:
+        tokenized_query = word_tokenize(row["text"])
+    elif "premise" in row:
+        tokenized_query = word_tokenize(row["hypothesis"] + " " + row["premise"])
+    else:
+        tokenized_query = word_tokenize(row["text_1"] + " " + row["text_2"])
+
+    scores = bm25.get_scores(tokenized_query).argsort()[-100:][::-1]
+
+    return scores
+
 
 INSTRUCTION = {
-    "xnli": ukp_argmin_instruction,
-    "ukp-argmin": ukp_argmin_instruction,
-    "evi-sen": evi_sen_instruction,
-    "ukp-a": ukp_a_instruction,
-    "arg-q": arg_q_instruction,
+    "arg-cls": ukp_argmin_instruction,
+    "evi-cls": evi_sen_instruction,
+    "arg-sim": ukp_a_instruction,
+    "arg-qua": arg_q_instruction,
     "stance": stance_instruction,
     "review": review_instruction,
-    "entailment-2": entailment_instruction,
-    "ag-news": ag_news_instruction,
+    "entail": entailment_instruction,
     "x-stance": {
         "de": de_x_stance_instruction,
         "fr": fr_x_stance_instruction,
@@ -1208,25 +860,15 @@ INSTRUCTION = {
     }
 }
 
-FLAN_INSTRUCTION = {
-    "xnli": flan_ukp_argmin_instruction,
-    "ukp-argmin": flan_ukp_argmin_instruction,
-    "evi-sen": flan_evi_sen_instruction,
-    "ukp-a": flan_ukp_a_instruction,
-    "arg-q": flan_arg_q_instruction,
-    "stance": flan_stance_instruction,
-    "ag-news": flan_ag_news_instruction
-}
-
 
 DEMONSTRATION = {
-    "ukp-argmin": [
+    "arg-cls": [
         compose_ukp_argmin_topic_demonstration_1
     ],
     "review": [
         compose_review_demonstration_1
     ],
-    "entailment-2": [
+    "entail": [
         compose_entailment_demonstration_1
     ],
     "stance": [
@@ -1235,28 +877,19 @@ DEMONSTRATION = {
     "x-stance": [
         compose_x_stance_demonstration_1
     ],
-    "xnli": [
-        compose_xnli_demonstration_1
-    ],
-    "evi-sen": [
+    "evi-cls": [
         compose_evi_topic_demonstration_1
     ],
-    "ukp-a": [
+    "arg-sim": [
         compose_ukp_a_topic_demonstration_1
     ],
-    "arg-q": [
+    "arg-qua": [
         compose_arg_q_topic_demonstration_1
-    ],
-    "wtwt": [
-        compose_input_topic_demonstration_1
-    ],
-    "ag-news": [
-        compose_ag_news_demonstration_1
     ],
 }
 
 DEMONSTRATION_QUERY = {
-    "ukp-argmin": [
+    "arg-cls": [
         compose_arg_topic_demonstration_query_1
     ],
     "stance": [
@@ -1270,73 +903,16 @@ DEMONSTRATION_QUERY = {
     "review": [
         compose_review_demonstration_query_1
     ],
-    "entailment-2": [
+    "entail": [
         compose_entailment_demonstration_query_1
     ],
-    "xnli": [
-        compose_xnli_demonstration_query_1
-    ],
-    "evi-sen": [
+    "evi-cls": [
         compose_evi_topic_demonstration_query_1
     ],
-    "ukp-a": [
+    "arg-sim": [
         compose_ukp_a_demonstration_query_1
     ],
-    "arg-q": [
+    "arg-qua": [
         compose_ukp_a_demonstration_query_1
     ],
-    "wtwt": [
-        compose_input_topic_demonstration_query_1
-    ],
-    "ag-news": [
-        compose_ag_news_demonstration_query_1
-    ],
-}
-
-FLAN_DEMONSTRATION = {
-    "ukp-argmin": [
-        flan_compose_arg_topic_demonstration_1
-    ],
-    "evi-sen": [
-        flan_compose_evi_topic_demonstration_1
-    ],
-    "ukp-a": [
-        flan_compose_ukp_a_topic_demonstration_1
-    ],
-    "arg-q": [
-        flan_compose_arg_q_topic_demonstration_1
-    ],
-    "stance": [
-        flan_compose_stance_topic_demonstration_1
-    ],
-    "ag-news": [
-        flan_compose_ag_news_demonstration_1
-    ],
-}
-
-VICUNA_DEMONSTRATION = {
-}
-
-FLAN_DEMONSTRATION_QUERY = {
-    "ukp-argmin": [
-        flan_compose_arg_topic_demonstration_query_1
-    ],
-    "evi-sen": [
-        flan_compose_evi_topic_demonstration_query_1
-    ],
-    "ukp-a": [
-        flan_compose_ukp_a_demonstration_query_1
-    ],
-    "arg-q": [
-        flan_compose_arg_q_demonstration_query_1
-    ],
-    "stance": [
-        flan_compose_stance_demonstration_query_1
-    ],
-    "ag-news": [
-        flan_compose_ag_news_demonstration_query_1
-    ],
-}
-
-VICUNA_DEMONSTRATION_QUERY = {
 }

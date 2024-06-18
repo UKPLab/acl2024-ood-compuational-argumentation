@@ -25,18 +25,8 @@ from utils.training import check_run_done, get_metrics
 @click.option('--setup', type=str, default="cd")
 @click.option('--seed', type=int, default=0)
 @click.option('--batch_size', type=int, default=-1)
-@click.option('--template_indices', type=str, default="0")
 @click.option('--verbalizing_mode', type=str, default="automatic")
-@click.option('--project_prefix', type=str, default="")
-def main(task, model_name, fold, setup, seed, batch_size, template_indices, verbalizing_mode, project_prefix):
-
-    if "@" in task:
-        base_task = task.split("@")[1]
-    else:
-        base_task = task
-
-    if batch_size == -1:
-        batch_size = 50
+def main(task, model_name, fold, setup, seed, batch_size, verbalizing_mode):
 
     load_dotenv()
 
@@ -54,9 +44,6 @@ def main(task, model_name, fold, setup, seed, batch_size, template_indices, verb
 
     TokenizerWrapper.add_special_tokens = add_special_tokens
 
-    if project_prefix != "":
-        task = project_prefix + "-" + task
-
     hyperparameter = {
         "mode": mode,
         "model_name": model_name,
@@ -64,11 +51,10 @@ def main(task, model_name, fold, setup, seed, batch_size, template_indices, verb
         "setup": setup,
         "training": training,
         "seed": seed,
-        #"template_indices": template_indices,
         "verbalizing_mode": verbalizing_mode,
     }
 
-    template_indices = [int(i) for i in template_indices.split(",")]
+    template_indices = [0]
 
     is_run_done = check_run_done(task, hyperparameter)
 
@@ -95,7 +81,7 @@ def main(task, model_name, fold, setup, seed, batch_size, template_indices, verb
 
         for i in template_indices:
 
-            template_text = TEMPLATES[base_task][i]
+            template_text = TEMPLATES[task][i]
 
             if not hasattr(tokenizer, 'sep_token') or tokenizer.sep_token is None:
                 template_text = template_text.replace('{"special": "<sep>"}', '')
@@ -118,13 +104,13 @@ def main(task, model_name, fold, setup, seed, batch_size, template_indices, verb
 
                 all_params += num_params
 
-            if all_params > 1000000000:#"flan" in model_name or "opt" in model_name or "gpt" in model_name:
+            if all_params > 1000000000:
                 plm = plm.half()
 
                 if verbalizing_mode == "static":
                     prompt_verbalizing = ManualVerbalizer16(
                         classes = list(range(num_classes)),
-                        label_words = STATIC_VERBALIZING[base_task],
+                        label_words = STATIC_VERBALIZING[task],
                         tokenizer = tokenizer,
                     )
                 elif verbalizing_mode == "automatic":
@@ -134,15 +120,11 @@ def main(task, model_name, fold, setup, seed, batch_size, template_indices, verb
                         num_classes=num_classes,
                         label_word_num_per_class=50
                     )
-                if all_params < 4000000000:
-                    batch_size = int(batch_size / 2)
-                else:
-                    batch_size = int(batch_size / 4)
             else:
                 if verbalizing_mode == "static":
                     prompt_verbalizing = ManualVerbalizer(
                         classes = list(range(num_classes)),
-                        label_words = STATIC_VERBALIZING[base_task],
+                        label_words = STATIC_VERBALIZING[task],
                         tokenizer = tokenizer,
                     )
                 elif verbalizing_mode == "automatic":

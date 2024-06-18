@@ -36,34 +36,15 @@ from utils.training import check_run_done, truncate_sentence
 @click.option('--batch_size', type=int, default=-1)
 @click.option('--learning_rate', type=float, default=0.0002)
 @click.option('--epochs', type=int, default=10)
-@click.option('--template_indices', type=str, default="0")
 @click.option('--verbalizing_mode', type=str, default="automatic")
-@click.option('--dump', type=bool, default=False)
 @click.option('--lora_r', type=int, default=4)
 @click.option('--peft_mode', type=str, default="LORA")
-@click.option('--project_prefix', type=str, default="")
-def main(task, model_name, fold, setup, seed, batch_size, learning_rate, epochs, template_indices, verbalizing_mode, dump, lora_r, peft_mode, project_prefix):
+def main(task, model_name, fold, setup, seed, batch_size, learning_rate, epochs, verbalizing_mode, lora_r, peft_mode):
 
-
-    if batch_size == -1:
-        batch_size = 16
 
     load_dotenv()
 
     task_id = task + "-" + setup + "-fold-" + str(fold)
-
-    if "@" in task:
-        base_task = task.split("@")[1]
-    else:
-        base_task = task
-
-    if dump:
-        task = "dump-" + task
-
-    if project_prefix != "":
-        task = project_prefix + "-" + task
-
-
 
     mode = os.getenv('MODE')
     use_cuda = bool(int(os.getenv('USE_CUDA')))
@@ -84,7 +65,6 @@ def main(task, model_name, fold, setup, seed, batch_size, learning_rate, epochs,
         "seed": seed,
         "learning_rate": learning_rate,
         "batch_size": batch_size,
-        #"template_indices": template_indices,
         "verbalizing_mode": verbalizing_mode,
     }
 
@@ -93,7 +73,7 @@ def main(task, model_name, fold, setup, seed, batch_size, learning_rate, epochs,
 
     TokenizerWrapper.add_special_tokens = add_special_tokens
 
-    template_indices = [int(i) for i in template_indices.split(",")]
+    template_indices = [0]
 
     is_run_done = check_run_done(task, hyperparameter)
 
@@ -162,7 +142,7 @@ def main(task, model_name, fold, setup, seed, batch_size, learning_rate, epochs,
                 if param.requires_grad:
                     trainable_params += num_params
 
-            template_text = TEMPLATES[base_task][i]
+            template_text = TEMPLATES[task][i]
 
             if not hasattr(tokenizer, 'sep_token') or tokenizer.sep_token is None:
                 template_text = template_text.replace('{"special": "<sep>"}', '')
@@ -172,54 +152,21 @@ def main(task, model_name, fold, setup, seed, batch_size, learning_rate, epochs,
                 tokenizer = tokenizer,
             )
 
-            if False:#all_params > 1000000000:#"flan" in model_name or "opt" in model_name or "gpt" in model_name:
-                #plm = plm.half()
-                precision = 16
+            if verbalizing_mode == "static":
+                prompt_verbalizing = ManualVerbalizer(
+                    classes = list(range(num_classes)),
+                    label_words = STATIC_VERBALIZING[task],
+                    tokenizer = tokenizer,
+                )
+            elif verbalizing_mode == "automatic":
+                prompt_verbalizing = CPUAutomaticVerbalizer(
+                    tokenizer = tokenizer,
+                    num_candidates=1000,
+                    num_classes=num_classes,
+                    label_word_num_per_class=50
+                )
 
-                if verbalizing_mode == "static":
-                    prompt_verbalizing = ManualVerbalizer16(
-                        classes = list(range(num_classes)),
-                        label_words = STATIC_VERBALIZING[base_task],
-                        tokenizer = tokenizer,
-                    )
-                elif verbalizing_mode == "automatic":
-                    prompt_verbalizing = CPUAutomaticVerbalizer16(
-                        tokenizer = tokenizer,
-                        num_candidates=1000,
-                        num_classes=num_classes,
-                        label_word_num_per_class=50
-                    )
-                if all_params < 4000000000:
-                    batch_size = int(batch_size / 4)
-                    accumulate_grad_batches = 4
-                else:
-                    batch_size = int(batch_size / 4)
-                    accumulate_grad_batches = 4
-            else:
-                if verbalizing_mode == "static":
-                    prompt_verbalizing = ManualVerbalizer(
-                        classes = list(range(num_classes)),
-                        label_words = STATIC_VERBALIZING[base_task],
-                        tokenizer = tokenizer,
-                    )
-                elif verbalizing_mode == "automatic":
-                    prompt_verbalizing = CPUAutomaticVerbalizer(
-                        tokenizer = tokenizer,
-                        num_candidates=1000,
-                        num_classes=num_classes,
-                        label_word_num_per_class=50
-                    )
-
-                if all_params < 1000000000:
-                    accumulate_grad_batches = 1
-                elif all_params < 4000000000:
-                    batch_size = int(batch_size / 4)
-                    accumulate_grad_batches = 4
-                else:
-                    batch_size = int(batch_size / 4)
-                    accumulate_grad_batches = 4
-
-                precision = 32
+            precision = 32
 
 
             prompt_model = PromptForClassification(
@@ -285,7 +232,7 @@ def main(task, model_name, fold, setup, seed, batch_size, learning_rate, epochs,
 
             trainer = Trainer(
                 max_epochs=epochs, gradient_clip_val=1.0, logger=wandb_logger, gpus=gpu, num_sanity_val_steps=0,
-                precision=precision, accumulate_grad_batches=accumulate_grad_batches,
+                precision=precision,
                 callbacks=[RichProgressBar(), ModelCheckpoint(monitor="eval/f1-macro",  mode="max", dirpath="./" + run_id + "-checkpoints"), EarlyStopping(monitor="eval/f1-macro", mode="max")]
 
             )
@@ -326,8 +273,7 @@ def main(task, model_name, fold, setup, seed, batch_size, learning_rate, epochs,
                 wandb.log({
                     "z_template-tokens": tokens_table
                 })
-            #os.system("mv " + trainer.state.best_model_checkpoint + "/* " + model_store + "/" + run_id)
-
+    
             wandb.config["template"] = str(i)
             wandb.config.update(
                 {
@@ -338,11 +284,6 @@ def main(task, model_name, fold, setup, seed, batch_size, learning_rate, epochs,
             )
 
             wandb.config["status"] = "done"
-
-            if dump:
-                artifact = wandb.Artifact('model', type='model')
-                artifact.add_file(trainer.checkpoint_callback.best_model_path)
-                wandb.log_artifact(artifact)
 
             os.system("rm -rf ./" + run_id + "-checkpoints")
 

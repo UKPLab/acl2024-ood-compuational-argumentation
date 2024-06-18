@@ -51,7 +51,7 @@ def check_run_done(task, hyperparameter):
 
     return len(lookup_runs) > 0
 
-def get_runs(task, hyperparameter, project_prefix):
+def get_runs(task, hyperparameter, project_prefix=""):
     api = wandb.Api()
 
     lookup_filter = {

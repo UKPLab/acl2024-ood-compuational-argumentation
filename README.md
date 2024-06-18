@@ -74,15 +74,68 @@ Afterward, we share our splits and you can put them into the `tasks` folder.
 ## Running the experiments
 
 Please use the following scripts to run the different experiments.
-* `run_frozen.py`, mono- and multi-lingual linear probing
-* `run_prompt.py`, mono-lingual prompting
-* `run_x_prompt.py`, multi-lingual prompting
-* `run_fine-tuning.py`, mono- and multi-lingual fine-tuning
-* `run_frozen_single_fix_step.py`, `run_fine-tuning_pre-initialized.py`, probing-first fine-tuning afterwards
-* `run_prompt_tuning.py`, mono-lingual prompt-tuning
-* `run_x_prompt_tuning.py`, multi-lingual prompt-tuning
-* `run_peft_prompt_tuning.py`, lora mono-lingual prompt-tuning
-* `run_icl.py`, mono-lingual in prompting
+For all of them take the following general parameters:
+* `task`, specific task to run, for example `arg-cls`
+* `model_name`, specific model (huggingface tag) to run, for example `bert-base-uncased"`
+* `fold`, specific fold to run, for example `0`
+* `setup`, specific setup to run, depends on the task, either cross-topic (`ct`), in-topic (`it`), cross-domain (`cd`), in-domain (`id`), cross-language (`cl`), or in-language (`il`)
+
+
+### Probing (LP) Experiments (`run_frozen.py`)
+Mono- and multi-lingual linear probing experiments, additional parameters:
+
+* `seed`, specific random seed
+* `pooling`, pooling method, for example `mean`
+* `batch_size`, batch size for training, for example `16`
+* `learning_rate`, learning rate for training, for example `0.0005`
+
+
+### Prompting (P) Experiments (`run_prompt.py` and `run_x_prompt.py`)
+Mono- or multi-lingual prompting experiments, additional parameters:
+
+* `seed`, specific random seed
+* `batch_size`, batch size for inference, for example `16`
+* `verbalizing_mode`, verbalizing mode, either `static` (label specific tokens) or `automatic` (50 optimized tokens per label)
+
+
+### Fine-Tuning (FT) Experiments (`run_fine-tuning.py`)
+Vanilla mono- and multi-lingual fine-tuning experiments, additional parameters:
+
+* `seed`, specific random seed
+* `pooling`, pooling method, for example `cls`
+* `batch_size`, batch size for training, for example `16`
+* `learning_rate`, learning rate for training, for example `0.0005`
+* `epochs`, specific number of epochs to train, for example `5`
+* `dropout_rate`, dropout rate during training, for example `0.1`
+
+### Prompt-Based Fine-Tuning (P+FT) Experiments (`run_prompt_tuning.py` and `run_x_prompt_tuning.py`)
+Prompt-based mono- and multi-lingual fine-tuning experiments, additional parameters:
+* `seed`, specific random seed
+* `pooling`, pooling method, for example `cls`
+* `batch_size`, batch size for training, for example `16`
+* `learning_rate`, learning rate for training, for example `0.0005`
+* `epochs`, specific number of epochs to train, for example `5`
+* `verbalizing_mode`, verbalizing mode, either `static` (label specific tokens) or `automatic` (50 optimized tokens per label)
+
+
+### Parameter-Efficient Prompt-Based Fine-Tuning (P+FT+LoRA) Experiments (`run_peft_prompt_tuning.py`)
+Vanilla mono- and multi-lingual fine-tuning experiments, additional parameters:
+
+* `seed`, specific random seed
+* `pooling`, pooling method, for example `cls`
+* `batch_size`, batch size for training, for example `16`
+* `learning_rate`, learning rate for training, for example `0.0005`
+* `verbalizing_mode`, verbalizing mode, either `static` (label specific tokens) or `automatic` (50 optimized tokens per label)
+* `peft_mode`, specific efficient method, for example `LORA`
+* `lora_r`, if using LORA the specific `r`, for example `4`
+
+### In-Context Learning Experiments (`run_icl.py`)
+In-context learning experiments
+
+* `seed`, specific random seed
+* `k`, number of demonstration examples, for example `4`
+* `bm25_retrieval`, whether to use BM25 to retrieve most similar examples, for example `True`
+
 
 ## Citation
 
