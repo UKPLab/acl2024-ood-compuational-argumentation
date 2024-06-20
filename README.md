@@ -147,10 +147,11 @@ In-context learning experiments
 ## Citation
 
 ```
-@inproceedings{Waldis2023HowTH,
-  title={How to Handle Different Types of Out-of-Distribution Scenarios in Computational Argumentation? A Comprehensive and Fine-Grained Field Study},
-  author={Andreas Waldis and Iryna Gurevych},
-  year={2023},
-  url={https://api.semanticscholar.org/CorpusID:262013145}
+@misc{waldis2024handle,
+      title={How to Handle Different Types of Out-of-Distribution Scenarios in Computational Argumentation? A Comprehensive and Fine-Grained Field Study}, 
+      author={Andreas Waldis and Yufang Hou and Iryna Gurevych},
+      year={2024},
+      eprint={2309.08316},
+      archivePrefix={arXiv},
 }
 ```
