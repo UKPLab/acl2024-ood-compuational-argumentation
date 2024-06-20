@@ -1,9 +1,14 @@
 # How to Handle Different Types of Out-of-Distribution Scenarios in Computational Argumentation? A Comprehensive and Fine-Grained Field Study
 
-### Description
+![Drag Racing](overview.jpg)
+
+
 This repository includes the code of the experiments reported in [How to Handle Different Types of Out-of-Distribution Scenarios in Computational Argumentation? A Comprehensive and Fine-Grained Field Study
 ](https://arxiv.org/abs/2309.08316).
-Reach out to us to get access to the specific folds we used, we are happy to share them with you.
+These experiments include the three considered out-of-distribution shift types (Figure 1) across the diverse set of eleven tasks (Figure 2).
+As some of the considered dataset are licensed, please reach out to us if you want to have access to all the folds. 
+We are happy to share the exact splits with you.
+Further please report an issue or e-mail us if something is broken (and it shouldn't be) or if you have further questions.
 
 
 
@@ -16,7 +21,6 @@ https://www.ukp.tu-darmstadt.de/
 https://www.tu-darmstadt.de/
 
 
-Don't hesitate to e-mail us or report an issue if something is broken (and it shouldn't be) or if you have further questions.
 
 > This repository contains experimental software and is published for the sole purpose of giving additional background details on the respective publication.
 
